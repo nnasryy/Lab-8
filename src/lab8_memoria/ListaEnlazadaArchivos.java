@@ -4,135 +4,223 @@
  */
 package lab8_memoria;
 
+/**
+ *
+ * @author jerem
+ */
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author jerem
+ * Clase ListaEnlazadaArchivos - Lista enlazada con Bubble Sort y Merge Sort
+ * Miembro 2
  */
 public class ListaEnlazadaArchivos {
-    
+
     private NodoArchivo cabeza;
     private int tamanio;
-    
-    public ListaEnlazadaArchivos(){
-        this.cabeza = null;
-        this.tamanio = 0;
-    }
-    
-    public void agregar(File archivo){
-        NodoArchivo nuevo = new NodoArchivo(archivo);
-        if(cabeza == null){
-            cabeza = nuevo;
-        } else{
-            NodoArchivo actual = cabeza;
-            while(actual.getSiguiente()!= null){
-                actual = actual.getSiguiente();
-            }
-            actual.setSiguiente(nuevo);
-        }
-        tamanio++;
-    }
-    
-    public void agregarAlFrente(File archivo){
-        NodoArchivo nuevo = new NodoArchivo(archivo);
-        nuevo.setSiguiente(cabeza);
-        cabeza = nuevo;
-        tamanio++;
-    }
-    
-    public File obtener(int indice){
-        if(indice<0 || indice>=tamanio){
-            return null;
-        }
-        NodoArchivo actual = cabeza;
-        for(int i = 0; i < indice; i++){
-            actual = actual.getSiguiente();
-        }
-        return actual.getArchivo();
-    }
-    
-    public void establecer(int indice, File archivo){
-        if(indice<0 || indice>=tamanio){
-            return;
-        }
-        NodoArchivo actual = cabeza;
-        for (int i = 0; i < indice; i++) {
-            actual = actual.getSiguiente();
-        }
-        actual.setArchivo(archivo);
-    }
-    
-    public void limpiar(){
+
+    public ListaEnlazadaArchivos() {
         cabeza = null;
         tamanio = 0;
     }
-    
-    public boolean estVacia(){
-        return tamanio == 0;
+
+    public void agregar(File archivo) {
+        try {
+            NodoArchivo nuevo = new NodoArchivo(archivo);
+            if (cabeza == null) {
+                cabeza = nuevo;
+            } else {
+                NodoArchivo actual = cabeza;
+                while (actual.getSiguiente() != null) {
+                    actual = actual.getSiguiente();
+                }
+                actual.setSiguiente(nuevo);
+            }
+            tamanio++;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error al agregar nodo: " + e.getMessage());
+        }
     }
-    
-    public int getTamanio(){
+
+    public void limpiar() {
+        cabeza = null;
+        tamanio = 0;
+    }
+
+    public int getTamanio() {
         return tamanio;
     }
-    
-    public NodoArchivo getCabeza(){
-        return cabeza;
-    }
-    
-    public void setCabeza(NodoArchivo cabeza){
-        this.cabeza = cabeza;
-        int count = 0;
-        NodoArchivo actual = cabeza;
-        while(actual!=null){
-            count++;
-            actual = actual.getSiguiente();
+
+    public List<File> aLista() {
+        List<File> lista = new ArrayList<>();
+        try {
+            NodoArchivo actual = cabeza;
+            while (actual != null) {
+                lista.add(actual.getArchivo());
+                actual = actual.getSiguiente();
+            }
+        } catch (Exception e) {
+            System.err.println("Error al convertir lista: " + e.getMessage());
         }
-        this.tamanio = count;
+        return lista;
     }
-    
-    public List<File> aLista(){
-        List<File> resultado = new ArrayList<>();
-        NodoArchivo actual = cabeza;
-        while(actual!=null){
-            resultado.add(actual.getArchivo());
-            actual = actual.getSiguiente();
+
+    // ---- BUBBLE SORT por nombre ----
+    public void ordenarPorNombreBubble() {
+        try {
+            if (cabeza == null || cabeza.getSiguiente() == null) return;
+            boolean intercambio;
+            do {
+                intercambio = false;
+                NodoArchivo actual = cabeza;
+                while (actual.getSiguiente() != null) {
+                    String n1 = actual.getArchivo().getName().toLowerCase();
+                    String n2 = actual.getSiguiente().getArchivo().getName().toLowerCase();
+                    if (n1.compareTo(n2) > 0) {
+                        File temp = actual.getArchivo();
+                        actual.archivo = actual.getSiguiente().getArchivo();
+                        actual.getSiguiente().archivo = temp;
+                        intercambio = true;
+                    }
+                    actual = actual.getSiguiente();
+                }
+            } while (intercambio);
+        } catch (Exception e) {
+            System.err.println("Error en Bubble Sort por nombre: " + e.getMessage());
+        }
+    }
+
+    // ---- BUBBLE SORT por tamaño ----
+    public void ordenarPorTamanioBubble() {
+        try {
+            if (cabeza == null || cabeza.getSiguiente() == null) return;
+            boolean intercambio;
+            do {
+                intercambio = false;
+                NodoArchivo actual = cabeza;
+                while (actual.getSiguiente() != null) {
+                    if (actual.getArchivo().length() > actual.getSiguiente().getArchivo().length()) {
+                        File temp = actual.getArchivo();
+                        actual.archivo = actual.getSiguiente().getArchivo();
+                        actual.getSiguiente().archivo = temp;
+                        intercambio = true;
+                    }
+                    actual = actual.getSiguiente();
+                }
+            } while (intercambio);
+        } catch (Exception e) {
+            System.err.println("Error en Bubble Sort por tamaño: " + e.getMessage());
+        }
+    }
+
+    // ---- BUBBLE SORT por fecha ----
+    public void ordenarPorFechaBubble() {
+        try {
+            if (cabeza == null || cabeza.getSiguiente() == null) return;
+            boolean intercambio;
+            do {
+                intercambio = false;
+                NodoArchivo actual = cabeza;
+                while (actual.getSiguiente() != null) {
+                    if (actual.getArchivo().lastModified() > actual.getSiguiente().getArchivo().lastModified()) {
+                        File temp = actual.getArchivo();
+                        actual.archivo = actual.getSiguiente().getArchivo();
+                        actual.getSiguiente().archivo = temp;
+                        intercambio = true;
+                    }
+                    actual = actual.getSiguiente();
+                }
+            } while (intercambio);
+        } catch (Exception e) {
+            System.err.println("Error en Bubble Sort por fecha: " + e.getMessage());
+        }
+    }
+
+    // ---- BUBBLE SORT por tipo ----
+    public void ordenarPorTipoBubble() {
+        try {
+            if (cabeza == null || cabeza.getSiguiente() == null) return;
+            boolean intercambio;
+            do {
+                intercambio = false;
+                NodoArchivo actual = cabeza;
+                while (actual.getSiguiente() != null) {
+                    String e1 = obtenerExtension(actual.getArchivo());
+                    String e2 = obtenerExtension(actual.getSiguiente().getArchivo());
+                    if (e1.compareTo(e2) > 0) {
+                        File temp = actual.getArchivo();
+                        actual.archivo = actual.getSiguiente().getArchivo();
+                        actual.getSiguiente().archivo = temp;
+                        intercambio = true;
+                    }
+                    actual = actual.getSiguiente();
+                }
+            } while (intercambio);
+        } catch (Exception e) {
+            System.err.println("Error en Bubble Sort por tipo: " + e.getMessage());
+        }
+    }
+
+    // ---- MERGE SORT por nombre ----
+    public void ordenarMergeSortPorNombre() {
+        try {
+            cabeza = mergeSort(cabeza);
+            recalcularTamanio();
+        } catch (Exception e) {
+            System.err.println("Error en Merge Sort: " + e.getMessage());
+        }
+    }
+
+    private NodoArchivo mergeSort(NodoArchivo inicio) {
+        if (inicio == null || inicio.getSiguiente() == null) return inicio;
+        NodoArchivo mitad = obtenerMitad(inicio);
+        NodoArchivo segunda = mitad.getSiguiente();
+        mitad.setSiguiente(null);
+        NodoArchivo izq = mergeSort(inicio);
+        NodoArchivo der = mergeSort(segunda);
+        return mezclar(izq, der);
+    }
+
+    private NodoArchivo obtenerMitad(NodoArchivo inicio) {
+        NodoArchivo lento = inicio;
+        NodoArchivo rapido = inicio.getSiguiente();
+        while (rapido != null && rapido.getSiguiente() != null) {
+            lento = lento.getSiguiente();
+            rapido = rapido.getSiguiente().getSiguiente();
+        }
+        return lento;
+    }
+
+    private NodoArchivo mezclar(NodoArchivo izq, NodoArchivo der) {
+        if (izq == null) return der;
+        if (der == null) return izq;
+        NodoArchivo resultado;
+        if (izq.getArchivo().getName().toLowerCase()
+                .compareTo(der.getArchivo().getName().toLowerCase()) <= 0) {
+            resultado = izq;
+            resultado.setSiguiente(mezclar(izq.getSiguiente(), der));
+        } else {
+            resultado = der;
+            resultado.setSiguiente(mezclar(izq, der.getSiguiente()));
         }
         return resultado;
     }
-    
-    public void desdeLista(List<File> archivos){
-        limpiar();
-        for(File f : archivos){
-            agregar(f);
+
+    public void recalcularTamanio() {
+        tamanio = 0;
+        NodoArchivo actual = cabeza;
+        while (actual != null) {
+            tamanio++;
+            actual = actual.getSiguiente();
         }
     }
-    
-    public void imprimir(){
-        NodoArchivo actual = cabeza;
-        System.out.print("Lista: [");
-        while(actual!=null){
-            System.out.print(actual.getArchivo().getName());
-            if(actual.getSiguiente()!=null){
-                System.out.println(" -> ");
-                actual = actual.getSiguiente();
-            }
-            System.out.println("]");
-        }
-    }
-    
-    public String toString(){
-        StringBuilder sb = new StringBuilder("ListaEnlazada(").append(tamanio).append(") [");
-        NodoArchivo actual = cabeza;
-        while(actual!=null){
-            sb.append(actual.getArchivo().getName());
-            if(actual.getSiguiente()!=null){
-                sb.append(", ");
-                actual = actual.getSiguiente();
-            }
-        }
-        return sb.append("]").toString();
+
+    private String obtenerExtension(File archivo) {
+        String nombre = archivo.getName();
+        int punto = nombre.lastIndexOf('.');
+        if (punto >= 0) return nombre.substring(punto + 1).toLowerCase();
+        return archivo.isDirectory() ? "carpeta" : "";
     }
 }
