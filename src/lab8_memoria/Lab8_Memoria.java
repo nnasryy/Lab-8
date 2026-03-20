@@ -21,7 +21,7 @@ public class Lab8_Memoria {
 
             genFondos escritorio = new genFondos();
 
-            fileExplorer explorador = new fileExplorer(escritorio);
+            FileExplorer explorador = new FileExplorer(escritorio);
 
             JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
