@@ -12,10 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase ListaEnlazadaArchivos - Lista enlazada con Bubble Sort y Merge Sort
- * Miembro 2
- */
+
 public class ListaEnlazadaArchivos {
 
     private NodoArchivo cabeza;
@@ -67,7 +64,6 @@ public class ListaEnlazadaArchivos {
         return lista;
     }
 
-    // ---- BUBBLE SORT por nombre ----
     public void ordenarPorNombreBubble() {
         try {
             if (cabeza == null || cabeza.getSiguiente() == null) return;
@@ -92,7 +88,6 @@ public class ListaEnlazadaArchivos {
         }
     }
 
-    // ---- BUBBLE SORT por tamaño ----
     public void ordenarPorTamanioBubble() {
         try {
             if (cabeza == null || cabeza.getSiguiente() == null) return;
@@ -115,7 +110,6 @@ public class ListaEnlazadaArchivos {
         }
     }
 
-    // ---- BUBBLE SORT por fecha ----
     public void ordenarPorFechaBubble() {
         try {
             if (cabeza == null || cabeza.getSiguiente() == null) return;
@@ -138,7 +132,6 @@ public class ListaEnlazadaArchivos {
         }
     }
 
-    // ---- BUBBLE SORT por tipo ----
     public void ordenarPorTipoBubble() {
         try {
             if (cabeza == null || cabeza.getSiguiente() == null) return;
@@ -163,7 +156,6 @@ public class ListaEnlazadaArchivos {
         }
     }
 
-    // ---- MERGE SORT por nombre ----
     public void ordenarMergeSortPorNombre() {
         try {
             cabeza = mergeSort(cabeza);

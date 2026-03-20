@@ -13,10 +13,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase GestorArchivos - Operaciones sobre archivos
- * Miembro 3
- */
+
 public class GestorArchivos {
 
     private List<File> portapapeles;
@@ -25,7 +22,6 @@ public class GestorArchivos {
         portapapeles = new ArrayList<>();
     }
 
-    // CREAR CARPETA
     public boolean crearCarpeta(File carpetaPadre, String nombre) {
         try {
             if (carpetaPadre == null || !carpetaPadre.isDirectory()) {
@@ -51,7 +47,6 @@ public class GestorArchivos {
         }
     }
 
-    // RENOMBRAR
     public boolean renombrar(File archivo, String nuevoNombre) {
         try {
             if (archivo == null || !archivo.exists()) {
@@ -80,7 +75,6 @@ public class GestorArchivos {
         }
     }
 
-    // COPIAR AL PORTAPAPELES
     public void copiarAlPortapapeles(List<File> archivos) {
         try {
             if (archivos == null || archivos.isEmpty()) {
@@ -93,7 +87,6 @@ public class GestorArchivos {
         }
     }
 
-    // PEGAR
     public List<String> pegar(File carpetaDestino) {
         List<String> errores = new ArrayList<>();
         try {
@@ -151,7 +144,6 @@ public class GestorArchivos {
         }
     }
 
-    // ORGANIZAR
     public String organizar(File carpeta) {
         try {
             if (carpeta == null || !carpeta.isDirectory()) {

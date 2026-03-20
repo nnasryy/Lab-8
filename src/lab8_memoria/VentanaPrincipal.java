@@ -19,33 +19,24 @@ import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
-/**
- * Clase VentanaPrincipal - GUI principal JAVA CENTER
- * Interfaz estilo Windows Vista/7 limpia (sin carpetas hardcodeadas)
- */
 public class VentanaPrincipal extends JFrame {
 
-    // Componentes
     private JTree arbolUI;
     private JTable tablaArchivos;
     private DefaultTableModel modeloTabla;
     private JLabel labelRuta;
     private JLabel labelEstado;
 
-    // Lógica
     private GestorArchivos gestor;
     private ListaEnlazadaArchivos listaArchivos;
     private ArbolDirectorios arbolDirectorios;
 
-    // Estado
     private File carpetaActual;
     private DefaultMutableTreeNode nodoActual;
 
-    // Historial de navegación
     private List<File> historial = new ArrayList<>();
     private int posHistorial = -1;
 
-    // Colores estilo Vista/7 azul perla
     private static final Color COLOR_TITULO_FONDO = new Color(55, 100, 175);
     private static final Color COLOR_NAV_FONDO    = new Color(195, 215, 245);
     private static final Color COLOR_NAV_BORDE    = new Color(150, 180, 225);
@@ -61,7 +52,6 @@ public class VentanaPrincipal extends JFrame {
         gestor        = new GestorArchivos();
         listaArchivos = new ListaEnlazadaArchivos();
 
-        // Crear la carpeta raíz del proyecto con archivos de ejemplo
         File carpetaRaiz = crearEstructuraRaiz();
         carpetaActual    = carpetaRaiz;
 
@@ -80,9 +70,6 @@ public class VentanaPrincipal extends JFrame {
     }
 }
 
-    // ============================================================
-    //  CONFIGURAR VENTANA
-    // ============================================================
     private void configurarVentana() {
         setTitle("Navegador y Organizador de Archivos");
         setSize(860, 590);
@@ -97,9 +84,6 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // ============================================================
-    //  CONSTRUIR GUI
-    // ============================================================
     private void construirGUI() {
         setLayout(new BorderLayout(0, 0));
         add(crearNorte(),      BorderLayout.NORTH);
@@ -107,12 +91,10 @@ public class VentanaPrincipal extends JFrame {
         add(crearPie(),        BorderLayout.SOUTH);
     }
 
-    // ---- NORTE: título + barra de navegación ----
     private JPanel crearNorte() {
         JPanel norte = new JPanel(new BorderLayout());
         norte.setBackground(COLOR_TITULO_FONDO);
 
-        // Título
         JPanel barraT = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 3));
         barraT.setBackground(COLOR_TITULO_FONDO);
         JLabel icono = new JLabel(" ");
@@ -124,7 +106,6 @@ public class VentanaPrincipal extends JFrame {
         barraT.add(txtTitulo);
         norte.add(barraT, BorderLayout.NORTH);
 
-        // Barra de navegación
         norte.add(crearBarraNavegacion(), BorderLayout.SOUTH);
         return norte;
     }
@@ -136,7 +117,6 @@ public class VentanaPrincipal extends JFrame {
                 BorderFactory.createMatteBorder(1, 0, 1, 0, COLOR_NAV_BORDE),
                 BorderFactory.createEmptyBorder(3, 6, 3, 6)));
 
-        // Flechas izquierda
         JPanel flechas = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
         flechas.setBackground(COLOR_NAV_FONDO);
         JButton btnAtras    = crearBotonFlecha("<");
@@ -147,7 +127,6 @@ public class VentanaPrincipal extends JFrame {
         flechas.add(btnAdelante);
         panel.add(flechas, BorderLayout.WEST);
 
-        // Ruta al centro
         labelRuta = new JLabel();
         labelRuta.setFont(new Font("Tahoma", Font.PLAIN, 12));
         labelRuta.setForeground(new Color(30, 30, 30));
@@ -159,7 +138,6 @@ public class VentanaPrincipal extends JFrame {
         actualizarLabelRuta();
         panel.add(labelRuta, BorderLayout.CENTER);
 
-        // Combo ordenar a la derecha
         JPanel panelOrden = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
         panelOrden.setBackground(COLOR_NAV_FONDO);
 
@@ -185,7 +163,6 @@ public class VentanaPrincipal extends JFrame {
         return panel;
     }
 
-    // ---- CENTRO: árbol izquierdo + tabla derecha ----
     private JSplitPane crearCentro() {
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 crearPanelArbol(), crearPanelDerecho());
@@ -195,7 +172,6 @@ public class VentanaPrincipal extends JFrame {
         return split;
     }
 
-    // ---- PANEL IZQUIERDO: solo el JTree ----
     private JPanel crearPanelArbol() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(COLOR_PANEL_IZQ);
@@ -214,12 +190,10 @@ public class VentanaPrincipal extends JFrame {
         return panel;
     }
 
-    // ---- PANEL DERECHO: tabla + barra de herramientas ----
     private JPanel crearPanelDerecho() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(COLOR_FONDO_TABLA);
 
-        // Tabla
         String[] cols = {"Nombre", "Fecha de modificación", "Tipo", "Tamaño"};
         modeloTabla = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -237,7 +211,6 @@ public class VentanaPrincipal extends JFrame {
         tablaArchivos.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tablaArchivos.setFillsViewportHeight(true);
 
-        // Header
         JTableHeader header = tablaArchivos.getTableHeader();
         header.setBackground(COLOR_TABLA_HEADER);
         header.setForeground(new Color(40, 55, 100));
@@ -245,13 +218,11 @@ public class VentanaPrincipal extends JFrame {
         header.setPreferredSize(new Dimension(0, 24));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, COLOR_NAV_BORDE));
 
-        // Ancho de columnas
         tablaArchivos.getColumnModel().getColumn(0).setPreferredWidth(240);
         tablaArchivos.getColumnModel().getColumn(1).setPreferredWidth(160);
         tablaArchivos.getColumnModel().getColumn(2).setPreferredWidth(120);
         tablaArchivos.getColumnModel().getColumn(3).setPreferredWidth(70);
 
-        // Clic en header = ordenar por esa columna
         header.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -260,7 +231,6 @@ public class VentanaPrincipal extends JFrame {
             }
         });
 
-        // Doble clic = entrar a carpeta
         tablaArchivos.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -272,10 +242,8 @@ public class VentanaPrincipal extends JFrame {
                         File f = new File(carpetaActual, nombre);
 
                         if (f.isDirectory()) {
-                            // Entrar a la carpeta
                             cargarContenido(f);
                         } else if (f.isFile()) {
-                            // Abrir el archivo con el programa predeterminado del sistema
                             if (java.awt.Desktop.isDesktopSupported()) {
                                 try {
                                     java.awt.Desktop.getDesktop().open(f);
@@ -304,7 +272,6 @@ public class VentanaPrincipal extends JFrame {
         return panel;
     }
 
-    // ---- BARRA DE HERRAMIENTAS (debajo de la tabla) ----
     private JPanel crearBarraHerramientas() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         panel.setBackground(COLOR_NAV_FONDO);
@@ -339,7 +306,6 @@ public class VentanaPrincipal extends JFrame {
         return panel;
     }
 
-    // ---- PIE DE PÁGINA ----
     private JPanel crearPie() {
         JPanel pie = new JPanel(new BorderLayout());
         pie.setBackground(COLOR_PIE);
@@ -359,9 +325,6 @@ public class VentanaPrincipal extends JFrame {
         return pie;
     }
 
-    // ============================================================
-    //  MENÚS CONTEXTUALES
-    // ============================================================
     private JPopupMenu crearMenuContextualArbol() {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem miNueva     = new JMenuItem("📁 Nueva Carpeta");
@@ -422,9 +385,6 @@ public class VentanaPrincipal extends JFrame {
         return menu;
     }
 
-    // ============================================================
-    //  EVENTOS
-    // ============================================================
     private void configurarEventos() {
         arbolUI.addTreeSelectionListener(e -> {
             try {
@@ -443,12 +403,8 @@ public class VentanaPrincipal extends JFrame {
         });
     }
 
-    // ============================================================
-    //  CARGAR CONTENIDO
-    // ============================================================
     private void cargarContenido(File carpeta) {
         try {
-            // Si la carpeta no existe, subir al padre
             if (carpeta == null || !carpeta.exists()) {
                 if (carpeta != null && carpeta.getParentFile() != null
                         && carpeta.getParentFile().exists()) {
@@ -458,7 +414,6 @@ public class VentanaPrincipal extends JFrame {
                 }
             }
 
-            // Registrar en historial
             if (posHistorial < historial.size() - 1) {
                 historial = new ArrayList<>(historial.subList(0, posHistorial + 1));
             }
@@ -515,10 +470,7 @@ public class VentanaPrincipal extends JFrame {
             System.err.println("Error al actualizar ruta: " + e.getMessage());
         }
     }
-
-    // ============================================================
-    //  ACCIONES
-    // ============================================================
+    
     private void accionOrganizar() {
         try {
             if (carpetaActual == null) throw new IllegalStateException("No hay carpeta seleccionada.");
@@ -579,14 +531,12 @@ public class VentanaPrincipal extends JFrame {
             File archivo = null;
             String nombreViejo = null;
 
-            // Primero revisar si hay algo seleccionado en la TABLA
             int fila = tablaArchivos.getSelectedRow();
             if (fila >= 0) {
                 nombreViejo = (String) modeloTabla.getValueAt(fila, 0);
                 nombreViejo = nombreViejo.trim().replaceAll("^\\S+\\s+", "");
                 archivo = new File(carpetaActual, nombreViejo);
             }
-            // Si no, revisar si hay algo seleccionado en el ÁRBOL
             else if (nodoActual != null) {
                 Object obj = nodoActual.getUserObject();
                 if (obj instanceof ArbolDirectorios.ArchivoNodo) {
@@ -618,19 +568,16 @@ public class VentanaPrincipal extends JFrame {
 
             boolean ok = gestor.renombrar(archivo, nuevo);
             if (ok) {
-                // Si la carpeta renombrada ES la carpeta actual, actualizar carpetaActual
                 if (carpetaActual.equals(archivo)) {
                     carpetaActual = new File(archivo.getParentFile(), nuevo);
                 }
 
-                // Recargar el nodo padre en el árbol para que se vea el nuevo nombre
                 if (nodoActual != null) {
                     DefaultMutableTreeNode padre =
                             (DefaultMutableTreeNode) nodoActual.getParent();
                     if (padre != null) {
                         arbolDirectorios.recargarNodo(padre);
                     } else {
-                        // Era el nodo raíz, recargar el propio nodo
                         arbolDirectorios.recargarNodo(nodoActual);
                     }
                 }
@@ -689,7 +636,6 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // Ordenar al hacer clic en el encabezado de la tabla
     private void accionOrdenar(int columna) {
         try {
             switch (columna) {
@@ -707,7 +653,6 @@ public class VentanaPrincipal extends JFrame {
     
     
 
-    // Ordenar por combo desplegable
     private void accionOrdenarCombo(int idx) {
         try {
             switch (idx) {
@@ -740,7 +685,6 @@ public class VentanaPrincipal extends JFrame {
             File[] archivos = chooser.getSelectedFiles();
             if (archivos.length == 0) return;
 
-            // Barra de progreso
             JProgressBar barra = new JProgressBar(0, archivos.length);
             barra.setStringPainted(true);
             barra.setString("Importando...");
@@ -753,7 +697,6 @@ public class VentanaPrincipal extends JFrame {
             dialogo.setLocationRelativeTo(this);
             dialogo.setVisible(true);
 
-            // SwingWorker: corre en hilo separado para no congelar la GUI
             SwingWorker<Integer, Integer> worker = new SwingWorker<Integer, Integer>() {
                 @Override
                 protected Integer doInBackground() throws Exception {
@@ -778,13 +721,11 @@ public class VentanaPrincipal extends JFrame {
                         } catch (Exception ex) {
                             System.err.println("Error importando " + origen.getName() + ": " + ex.getMessage());
                         }
-                        // Reportar progreso
                         publish(i + 1);
                     }
                     return importados;
                 }
 
-                // Se llama en el hilo de la GUI cada vez que publish() reporta
                 @Override
                 protected void process(List<Integer> chunks) {
                     int ultimo = chunks.get(chunks.size() - 1);
@@ -792,7 +733,6 @@ public class VentanaPrincipal extends JFrame {
                     barra.setString("Importando " + ultimo + " de " + archivos.length + "...");
                 }
 
-                // Se llama cuando termina
                 @Override
                 protected void done() {
                     try {
@@ -824,7 +764,6 @@ public class VentanaPrincipal extends JFrame {
         int[] filas = tablaArchivos.getSelectedRows();
         if (filas.length == 0) throw new IllegalStateException("Selecciona un archivo o carpeta para eliminar.");
 
-        // Confirmar eliminación
         String mensaje = filas.length == 1
                 ? "¿Eliminar \"" + limpiarNombre((String) modeloTabla.getValueAt(filas[0], 0)) + "\"?"
                 : "¿Eliminar " + filas.length + " elementos seleccionados?";
@@ -859,7 +798,6 @@ public class VentanaPrincipal extends JFrame {
             }
         }
 
-        // Actualizar árbol y tabla
         cargarContenido(carpetaActual);
         if (nodoActual != null) arbolDirectorios.recargarNodo(nodoActual);
 
@@ -892,7 +830,6 @@ public class VentanaPrincipal extends JFrame {
         if (!carpeta.delete()) throw new Exception("No se pudo eliminar carpeta: " + carpeta.getName());
     }
 
-    // Historial: atrás
     private void navegarAtras() {
         try {
             if (posHistorial <= 0) return;
@@ -908,7 +845,6 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // Historial: adelante
     private void navegarAdelante() {
         try {
             if (posHistorial >= historial.size() - 1) return;
@@ -924,9 +860,6 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    // ============================================================
-    //  UTILIDADES
-    // ============================================================
     private void setEstado(String texto) {
         labelEstado.setText(texto);
     }
@@ -995,19 +928,15 @@ public class VentanaPrincipal extends JFrame {
         return btn;
     }
     
-    /**
- * Crea la carpeta raíz del proyecto con subcarpetas y archivos de ejemplo.
- * Solo se crea si no existe, para no borrar lo que el usuario ya haya creado.
- */
+
 private File crearEstructuraRaiz() {
     File raiz = new File(System.getProperty("user.home"), "PollitoRaiz");
 
-    if (raiz.exists()) return raiz; // Ya existe, no tocar
+    if (raiz.exists()) return raiz; 
 
     try {
         raiz.mkdir();
 
-        // -- Subcarpeta Documentos con archivos --
         File documentos = new File(raiz, "Documentos");
         documentos.mkdir();
         crearArchivoTexto(new File(documentos, "tesnica_utadoc.txt"), "Documento tecnico UNITEC");
@@ -1017,15 +946,12 @@ private File crearEstructuraRaiz() {
         crearArchivoTexto(new File(documentos, "reporte.pdf"),        "Reporte final");
         crearArchivoTexto(new File(documentos, "tarea.docx"),         "Tarea entregable");
 
-        // -- Subcarpeta Imagenes con archivos --
         File imagenes = new File(raiz, "Imagenes");
         imagenes.mkdir();
 
-        // -- Subcarpeta Musica con archivos --
         File musica = new File(raiz, "Musica");
         musica.mkdir();
 
-        // -- Carpeta Descargas con archivos mixtos (para probar Organizar) --
         File descargas = new File(raiz, "Descargas");
         descargas.mkdir();
         crearArchivoTexto(new File(descargas, "apuntes.txt"),    "texto");
@@ -1034,7 +960,6 @@ private File crearEstructuraRaiz() {
         crearArchivoTexto(new File(descargas, "manual.pdf"),     "documento");
         crearArchivoTexto(new File(descargas, "portada.png"),    "imagen");
 
-        // -- Carpeta Trabajos con archivos --
         File trabajos = new File(raiz, "Trabajos");
         trabajos.mkdir();
         crearArchivoTexto(new File(trabajos, "trabajo1.txt"),  "Trabajo numero 1");
@@ -1048,7 +973,6 @@ private File crearEstructuraRaiz() {
     return raiz;
 }
 
-    // Crea un archivo de texto con contenido simple
     private void crearArchivoTexto(File archivo, String contenido) {
         try (java.io.FileWriter fw = new java.io.FileWriter(archivo)) {
             fw.write(contenido);
@@ -1057,9 +981,6 @@ private File crearEstructuraRaiz() {
         }
     }
 
-    // ============================================================
-    //  MAIN
-    // ============================================================
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

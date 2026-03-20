@@ -8,18 +8,9 @@ package lab8_memoria;
  *
  * @author jerem
  */
+
 import java.io.File;
 
-/**
- * Clase NodoArchivo - Nodo para la lista enlazada personalizada
- * Miembro 1: Estructura de datos base
- */
-import java.io.File;
-
-/**
- * Clase NodoArchivo - Nodo de la lista enlazada
- * Miembro 1
- */
 public class NodoArchivo {
 
     File archivo;

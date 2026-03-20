@@ -14,17 +14,13 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 
-/**
- * Clase ArbolDirectorios - JTree con carga lazy (solo carga al expandir)
- * Miembro 4
- */
+
 public class ArbolDirectorios {
 
     private DefaultMutableTreeNode raiz;
     private DefaultTreeModel modelo;
     private JTree arbol;
 
-    // Nodo fantasma para mostrar la flecha de expansión
     private static final String NODO_FANTASMA = "cargando...";
 
     public ArbolDirectorios(File carpetaRaiz) {
@@ -39,7 +35,6 @@ public class ArbolDirectorios {
             arbol.setRootVisible(true);
             arbol.setShowsRootHandles(true);
 
-            // Solo agrega un nivel de hijos (sin recursión)
             agregarHijosDirectos(raiz, carpetaRaiz);
 
             configurarRenderer();
@@ -54,7 +49,6 @@ public class ArbolDirectorios {
         }
     }
 
-    // Solo carga 1 nivel + nodo fantasma para indicar que tiene hijos
     private void agregarHijosDirectos(DefaultMutableTreeNode nodo, File carpeta) {
         try {
             File[] hijos = carpeta.listFiles();
@@ -66,7 +60,6 @@ public class ArbolDirectorios {
                             new DefaultMutableTreeNode(new ArchivoNodo(hijo));
                     nodo.add(nodoHijo);
 
-                    // Si tiene subcarpetas, agrega nodo fantasma para mostrar la flecha ▶
                     if (tieneCarpetasHijas(hijo)) {
                         nodoHijo.add(new DefaultMutableTreeNode(NODO_FANTASMA));
                     }
@@ -77,7 +70,6 @@ public class ArbolDirectorios {
         }
     }
 
-    // Verifica si una carpeta tiene subcarpetas (sin listar todo)
     private boolean tieneCarpetasHijas(File carpeta) {
         try {
             File[] hijos = carpeta.listFiles();
@@ -91,7 +83,6 @@ public class ArbolDirectorios {
         return false;
     }
 
-    // Listener lazy: carga los hijos reales cuando el usuario expande un nodo
     private void configurarLazy() {
         arbol.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
@@ -100,7 +91,6 @@ public class ArbolDirectorios {
                     DefaultMutableTreeNode nodo =
                             (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
 
-                    // Si el primer hijo es el nodo fantasma, reemplazar con hijos reales
                     if (nodo.getChildCount() == 1) {
                         DefaultMutableTreeNode primerHijo =
                                 (DefaultMutableTreeNode) nodo.getChildAt(0);
@@ -118,7 +108,6 @@ public class ArbolDirectorios {
 
             @Override
             public void treeWillCollapse(TreeExpansionEvent event) {
-                // No hace nada al colapsar
             }
         });
     }
@@ -143,7 +132,6 @@ public class ArbolDirectorios {
             }
             DefaultMutableTreeNode nuevo =
                     new DefaultMutableTreeNode(new ArchivoNodo(nuevaCarpeta));
-            // Si tiene sub-subcarpetas, agrega fantasma
             if (tieneCarpetasHijas(nuevaCarpeta)) {
                 nuevo.add(new DefaultMutableTreeNode(NODO_FANTASMA));
             }
@@ -167,7 +155,7 @@ public class ArbolDirectorios {
                     if (obj instanceof ArchivoNodo) {
                         setText(((ArchivoNodo) obj).toString());
                     } else if (NODO_FANTASMA.equals(obj)) {
-                        setText(""); // Ocultar el nodo fantasma visualmente
+                        setText(""); 
                     }
                 }
                 return this;
@@ -178,7 +166,6 @@ public class ArbolDirectorios {
     public JTree getArbol()            { return arbol; }
     public DefaultTreeModel getModelo(){ return modelo; }
 
-    // ---- Clase interna ----
     public static class ArchivoNodo {
         private File archivo;
 
