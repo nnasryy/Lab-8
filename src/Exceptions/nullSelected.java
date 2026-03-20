@@ -8,6 +8,16 @@ package Exceptions;
  *
  * @author nasry
  */
-public class nullSelected {
+public class nullSelected extends Exception{
+    
+ public nullSelected(String mensaje){
+ super(mensaje);
+ }
+    
+ public nullSelected(String mensaje, Throwable causa){
+ super(mensaje, causa);
+ }
+ 
+ 
     
 }

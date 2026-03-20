@@ -8,6 +8,15 @@ package Exceptions;
  *
  * @author nasry
  */
-public class OperacionNoPermitidaException {
+public class OperacionNoPermitidaException extends Exception {
+
+    public OperacionNoPermitidaException(String mensaje) {
+        super(mensaje);
+    }
+
+    public OperacionNoPermitidaException(String mensaje, Throwable causa){
+    super(mensaje, causa);
+    }
+    
     
 }

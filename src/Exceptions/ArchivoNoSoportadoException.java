@@ -9,5 +9,21 @@ package Exceptions;
  * @author nasry
  */
 public class ArchivoNoSoportadoException {
-    
+
+    private final String nombreArchivo;
+
+    public ArchivoNoSoportadoException(String nombreArchivo) {
+        super("Extensión de archivo no soportada por el sistema: " + nombreArchivo);
+        this.nombreArchivo = nombreArchivo;
+    }
+
+    public ArchivoNoSoportadoException(String nombreArchivo, String mensaje) {
+        super(mensaje);
+        this.nombreArchivo = nombreArchivo;
+    }
+
+    public String getNombreArchivo() {
+        return nombreArchivo;
+    }
+
 }
