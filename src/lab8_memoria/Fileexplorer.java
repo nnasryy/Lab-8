@@ -1,15 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package lab8_memoria;
 
-/**
- *
- * @author jerem
- */
-import Logica.Excepciones.nullSelected;
-import Logica.ManejoUsuarios.UserLogged;
+import Exceptions.nullSelected;
+import Exceptions.UserLogged;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -36,13 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
-/**
- * Explorador de archivos principal.
- * Integra ListaEnlazadaArchivos + OrdenadorArchivos para el ordenamiento
- * y organización automática de archivos.
- *
- * Responsable: Miembro 4
- */
+
 public class fileExplorer extends JPanel {
 
     private static String userName = UserLogged.getInstance().getUserLogged().getName();
@@ -71,7 +57,7 @@ public class fileExplorer extends JPanel {
     private String currentDirPath;
 
     /** Criterio activo; sincronizado con OrdenadorArchivos. */
-    private OrdenadorArchivos.SortCriteria sortCriteria = OrdenadorArchivos.SortCriteria.NAME;
+    private SortCriteria sortCriteria = SortCriteria.NAME;
 
     /** Instancia del ordenador que ejecuta Bubble Sort / Merge Sort. */
     private final OrdenadorArchivos ordenador = new OrdenadorArchivos(sortCriteria);
@@ -497,12 +483,12 @@ public class fileExplorer extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int col = fileTable.columnAtPoint(e.getPoint());
-                OrdenadorArchivos.SortCriteria nuevo;
+                SortCriteria nuevo;
                 switch (col) {
-                    case 1:  nuevo = OrdenadorArchivos.SortCriteria.DATE; break;
-                    case 2:  nuevo = OrdenadorArchivos.SortCriteria.TYPE; break;
-                    case 3:  nuevo = OrdenadorArchivos.SortCriteria.SIZE; break;
-                    default: nuevo = OrdenadorArchivos.SortCriteria.NAME; break;
+                    case 1:  nuevo = SortCriteria.DATE; break;
+                    case 2:  nuevo = SortCriteria.TYPE; break;
+                    case 3:  nuevo = SortCriteria.SIZE; break;
+                    default: nuevo = SortCriteria.NAME; break;
                 }
                 sortCriteria = nuevo;
                 ordenador.setCriterio(nuevo);
@@ -596,10 +582,10 @@ public class fileExplorer extends JPanel {
 
         opcionesOrdenar.addActionListener(e -> {
             String selected = (String) opcionesOrdenar.getSelectedItem();
-            if ("Nombre".equals(selected))  sortCriteria = OrdenadorArchivos.SortCriteria.NAME;
-            else if ("Fecha".equals(selected))   sortCriteria = OrdenadorArchivos.SortCriteria.DATE;
-            else if ("Tamaño".equals(selected))  sortCriteria = OrdenadorArchivos.SortCriteria.SIZE;
-            else if ("Tipo".equals(selected))    sortCriteria = OrdenadorArchivos.SortCriteria.TYPE;
+            if ("Nombre".equals(selected))  sortCriteria = SortCriteria.NAME;
+            else if ("Fecha".equals(selected))   sortCriteria = SortCriteria.DATE;
+            else if ("Tamaño".equals(selected))  sortCriteria = SortCriteria.SIZE;
+            else if ("Tipo".equals(selected))    sortCriteria = SortCriteria.TYPE;
 
             ordenador.setCriterio(sortCriteria);
             displayContents(new File(currentDirPath));
