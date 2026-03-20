@@ -12,12 +12,12 @@ import java.util.List;
  *
  * @author jerem
  */
-public class Listaenlazadaarchivos {
+public class ListaEnlazadaArchivos {
     
     private NodoArchivo cabeza;
     private int tamanio;
     
-    public Listaenlazadaarchivos(){
+    public ListaEnlazadaArchivos(){
         this.cabeza = null;
         this.tamanio = 0;
     }
