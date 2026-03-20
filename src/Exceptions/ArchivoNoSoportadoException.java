@@ -8,7 +8,7 @@ package Exceptions;
  *
  * @author nasry
  */
-public class ArchivoNoSoportadoException {
+public class ArchivoNoSoportadoException extends Exception{
 
     private final String nombreArchivo;
 
