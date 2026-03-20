@@ -247,10 +247,26 @@ public class VentanaPrincipal extends JFrame {
                         if (fila < 0) return;
                         String nombre = limpiarNombre((String) modeloTabla.getValueAt(fila, 0));
                         File f = new File(carpetaActual, nombre);
-                        if (f.isDirectory()) cargarContenido(f);
+
+                        if (f.isDirectory()) {
+                            // Entrar a la carpeta
+                            cargarContenido(f);
+                        } else if (f.isFile()) {
+                            // Abrir el archivo con el programa predeterminado del sistema
+                            if (java.awt.Desktop.isDesktopSupported()) {
+                                try {
+                                    java.awt.Desktop.getDesktop().open(f);
+                                } catch (Exception ex) {
+                                    mostrarError("No se pudo abrir el archivo",
+                                            "No hay programa asociado para abrir: " + f.getName());
+                                }
+                            } else {
+                                mostrarAdvertencia("Tu sistema no soporta abrir archivos automáticamente.");
+                            }
+                        }
                     }
                 } catch (Exception ex) {
-                    mostrarError("Error al abrir carpeta", ex.getMessage());
+                    mostrarError("Error al abrir", ex.getMessage());
                 }
             }
         });
