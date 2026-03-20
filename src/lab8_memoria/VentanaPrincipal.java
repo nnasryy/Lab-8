@@ -136,7 +136,7 @@ public class VentanaPrincipal extends JFrame {
                 BorderFactory.createMatteBorder(1, 0, 1, 0, COLOR_NAV_BORDE),
                 BorderFactory.createEmptyBorder(3, 6, 3, 6)));
 
-        // Flechas
+        // Flechas izquierda
         JPanel flechas = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
         flechas.setBackground(COLOR_NAV_FONDO);
         JButton btnAtras    = crearBotonFlecha("<");
@@ -147,7 +147,7 @@ public class VentanaPrincipal extends JFrame {
         flechas.add(btnAdelante);
         panel.add(flechas, BorderLayout.WEST);
 
-        // Campo de ruta
+        // Ruta al centro
         labelRuta = new JLabel();
         labelRuta.setFont(new Font("Tahoma", Font.PLAIN, 12));
         labelRuta.setForeground(new Color(30, 30, 30));
@@ -158,6 +158,29 @@ public class VentanaPrincipal extends JFrame {
                 BorderFactory.createEmptyBorder(2, 8, 2, 8)));
         actualizarLabelRuta();
         panel.add(labelRuta, BorderLayout.CENTER);
+
+        // Combo ordenar a la derecha
+        JPanel panelOrden = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+        panelOrden.setBackground(COLOR_NAV_FONDO);
+
+        JLabel lblOrd = new JLabel("Ordenar:");
+        lblOrd.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        lblOrd.setForeground(new Color(30, 30, 30));
+
+        String[] modos = {
+            "Nombre (Bubble)", "Tamaño (Bubble)",
+            "Fecha (Bubble)",  "Tipo (Bubble)",
+            "Nombre (Merge)"
+        };
+        JComboBox<String> combo = new JComboBox<>(modos);
+        combo.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        combo.setBackground(Color.WHITE);
+        combo.setPreferredSize(new Dimension(155, 24));
+        combo.addActionListener(e -> accionOrdenarCombo(combo.getSelectedIndex()));
+
+        panelOrden.add(lblOrd);
+        panelOrden.add(combo);
+        panel.add(panelOrden, BorderLayout.EAST);
 
         return panel;
     }
@@ -292,12 +315,19 @@ public class VentanaPrincipal extends JFrame {
         JButton btnRenombrar    = crearBotonAccion("✏ Renombrar",       new Color(140, 95, 40));
         JButton btnCopiar       = crearBotonAccion("📋 Copiar",         new Color(70, 70, 140));
         JButton btnPegar        = crearBotonAccion("📌 Pegar",          new Color(140, 70, 70));
+        JButton btnImportar = crearBotonAccion("📥 Importar", new Color(80, 150, 130));
+        JButton btnEliminar = crearBotonAccion("🗑 Eliminar", new Color(180, 50, 50));
 
         btnOrganizar.addActionListener(e    -> accionOrganizar());
         btnNuevaCarpeta.addActionListener(e -> accionNuevaCarpeta());
         btnRenombrar.addActionListener(e    -> accionRenombrar());
         btnCopiar.addActionListener(e       -> accionCopiar());
         btnPegar.addActionListener(e        -> accionPegar());
+        btnImportar.addActionListener(e -> accionImportar());  
+        btnEliminar.addActionListener(e -> accionEliminar());
+        
+        panel.add(btnEliminar);    
+        panel.add(btnImportar);
 
         panel.add(btnOrganizar);
         panel.add(new JSeparator(SwingConstants.VERTICAL));
@@ -305,24 +335,6 @@ public class VentanaPrincipal extends JFrame {
         panel.add(btnRenombrar);
         panel.add(btnCopiar);
         panel.add(btnPegar);
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
-
-        // Combo de ordenamiento
-        JLabel lblOrd = new JLabel("Ordenar:");
-        lblOrd.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        panel.add(lblOrd);
-
-        String[] modos = {
-            "Nombre (Bubble)", "Tamaño (Bubble)",
-            "Fecha (Bubble)",  "Tipo (Bubble)",
-            "Nombre (Merge)"
-        };
-        JComboBox<String> combo = new JComboBox<>(modos);
-        combo.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        combo.setBackground(Color.WHITE);
-        combo.setPreferredSize(new Dimension(160, 24));
-        combo.addActionListener(e -> accionOrdenarCombo(combo.getSelectedIndex()));
-        panel.add(combo);
 
         return panel;
     }
@@ -436,8 +448,14 @@ public class VentanaPrincipal extends JFrame {
     // ============================================================
     private void cargarContenido(File carpeta) {
         try {
+            // Si la carpeta no existe, subir al padre
             if (carpeta == null || !carpeta.exists()) {
-                throw new IllegalArgumentException("La carpeta no existe: " + carpeta);
+                if (carpeta != null && carpeta.getParentFile() != null
+                        && carpeta.getParentFile().exists()) {
+                    carpeta = carpeta.getParentFile();
+                } else {
+                    return;
+                }
             }
 
             // Registrar en historial
@@ -558,22 +576,65 @@ public class VentanaPrincipal extends JFrame {
 
     private void accionRenombrar() {
         try {
+            File archivo = null;
+            String nombreViejo = null;
+
+            // Primero revisar si hay algo seleccionado en la TABLA
             int fila = tablaArchivos.getSelectedRow();
-            if (fila < 0) throw new IllegalStateException("Selecciona un archivo o carpeta primero.");
-            String nombreViejo = limpiarNombre((String) modeloTabla.getValueAt(fila, 0));
-            File archivo = new File(carpetaActual, nombreViejo);
-            if (!archivo.exists()) throw new IllegalStateException("El archivo ya no existe en disco.");
-            String nuevo = JOptionPane.showInputDialog(this, "Nuevo nombre:", nombreViejo);
+            if (fila >= 0) {
+                nombreViejo = (String) modeloTabla.getValueAt(fila, 0);
+                nombreViejo = nombreViejo.trim().replaceAll("^\\S+\\s+", "");
+                archivo = new File(carpetaActual, nombreViejo);
+            }
+            // Si no, revisar si hay algo seleccionado en el ÁRBOL
+            else if (nodoActual != null) {
+                Object obj = nodoActual.getUserObject();
+                if (obj instanceof ArbolDirectorios.ArchivoNodo) {
+                    archivo = ((ArbolDirectorios.ArchivoNodo) obj).getArchivo();
+                    nombreViejo = archivo.getName();
+                }
+            }
+
+            if (archivo == null || nombreViejo == null) {
+                throw new IllegalStateException("Selecciona un archivo o carpeta primero.");
+            }
+            if (!archivo.exists()) {
+                throw new IllegalStateException("El elemento ya no existe en disco.");
+            }
+
+            String nuevo = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Nuevo nombre:",
+                    "Renombrar",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    nombreViejo);
+
             if (nuevo == null) return;
-            if (nuevo.trim().isEmpty()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
-            boolean ok = gestor.renombrar(archivo, nuevo.trim());
+            nuevo = nuevo.trim();
+            if (nuevo.isEmpty()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
+            if (nuevo.equals(nombreViejo)) return;
+
+            boolean ok = gestor.renombrar(archivo, nuevo);
             if (ok) {
+                if (carpetaActual.equals(archivo)) {
+                    carpetaActual = new File(archivo.getParentFile(), nuevo);
+                }
+
                 cargarContenido(carpetaActual);
+
                 if (nodoActual != null) arbolDirectorios.recargarNodo(nodoActual);
-                setEstado("  Renombrado a: \"" + nuevo.trim() + "\"");
+                if (fila < 0 && nodoActual != null) {
+                    DefaultMutableTreeNode padre =
+                            (DefaultMutableTreeNode) nodoActual.getParent();
+                    if (padre != null) arbolDirectorios.recargarNodo(padre);
+                }
+                setEstado("  Renombrado: \"" + nombreViejo + "\" → \"" + nuevo + "\"");
             } else {
                 throw new Exception("No se pudo renombrar. ¿Ya existe ese nombre?");
             }
+
         } catch (IllegalArgumentException e) {
             mostrarError("Nombre inválido", e.getMessage());
         } catch (IllegalStateException e) {
@@ -637,6 +698,8 @@ public class VentanaPrincipal extends JFrame {
             mostrarError("Error al ordenar", e.getMessage());
         }
     }
+    
+    
 
     // Ordenar por combo desplegable
     private void accionOrdenarCombo(int idx) {
@@ -655,6 +718,172 @@ public class VentanaPrincipal extends JFrame {
         } catch (Exception e) {
             mostrarError("Error al ordenar", e.getMessage());
         }
+    }
+    
+    private void accionImportar() {
+        try {
+            if (carpetaActual == null) throw new IllegalStateException("Selecciona una carpeta destino primero.");
+
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Seleccionar archivos para importar");
+            chooser.setMultiSelectionEnabled(true);
+
+            int resultado = chooser.showOpenDialog(this);
+            if (resultado != JFileChooser.APPROVE_OPTION) return;
+
+            File[] archivos = chooser.getSelectedFiles();
+            if (archivos.length == 0) return;
+
+            // Barra de progreso
+            JProgressBar barra = new JProgressBar(0, archivos.length);
+            barra.setStringPainted(true);
+            barra.setString("Importando...");
+
+            JDialog dialogo = new JDialog(this, "Importando archivos", false);
+            dialogo.setLayout(new BorderLayout(10, 10));
+            dialogo.add(new JLabel("  Importando " + archivos.length + " archivo(s)..."), BorderLayout.NORTH);
+            dialogo.add(barra, BorderLayout.CENTER);
+            dialogo.setSize(350, 100);
+            dialogo.setLocationRelativeTo(this);
+            dialogo.setVisible(true);
+
+            // SwingWorker: corre en hilo separado para no congelar la GUI
+            SwingWorker<Integer, Integer> worker = new SwingWorker<Integer, Integer>() {
+                @Override
+                protected Integer doInBackground() throws Exception {
+                    int importados = 0;
+                    for (int i = 0; i < archivos.length; i++) {
+                        File origen = archivos[i];
+                        try {
+                            File destino = new File(carpetaActual, origen.getName());
+                            if (destino.exists()) {
+                                String nombre = origen.getName();
+                                int punto = nombre.lastIndexOf('.');
+                                String base = punto >= 0 ? nombre.substring(0, punto) : nombre;
+                                String ext  = punto >= 0 ? nombre.substring(punto) : "";
+                                destino = new File(carpetaActual, base + "_copia" + ext);
+                            }
+                            java.nio.file.Files.copy(
+                                origen.toPath(),
+                                destino.toPath(),
+                                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                            );
+                            importados++;
+                        } catch (Exception ex) {
+                            System.err.println("Error importando " + origen.getName() + ": " + ex.getMessage());
+                        }
+                        // Reportar progreso
+                        publish(i + 1);
+                    }
+                    return importados;
+                }
+
+                // Se llama en el hilo de la GUI cada vez que publish() reporta
+                @Override
+                protected void process(List<Integer> chunks) {
+                    int ultimo = chunks.get(chunks.size() - 1);
+                    barra.setValue(ultimo);
+                    barra.setString("Importando " + ultimo + " de " + archivos.length + "...");
+                }
+
+                // Se llama cuando termina
+                @Override
+                protected void done() {
+                    try {
+                        int importados = get();
+                        dialogo.dispose();
+                        cargarContenido(carpetaActual);
+                        setEstado("  " + importados + " archivo(s) importados.");
+                        JOptionPane.showMessageDialog(VentanaPrincipal.this,
+                                importados + " archivo(s) importados correctamente.",
+                                "Importación completa", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception ex) {
+                        dialogo.dispose();
+                        mostrarError("Error al finalizar importación", ex.getMessage());
+                    }
+                }
+            };
+
+        worker.execute();
+
+    } catch (IllegalStateException e) {
+        mostrarAdvertencia(e.getMessage());
+    } catch (Exception e) {
+        mostrarError("Error al importar", e.getMessage());
+    }
+}
+    
+    private void accionEliminar() {
+    try {
+        int[] filas = tablaArchivos.getSelectedRows();
+        if (filas.length == 0) throw new IllegalStateException("Selecciona un archivo o carpeta para eliminar.");
+
+        // Confirmar eliminación
+        String mensaje = filas.length == 1
+                ? "¿Eliminar \"" + limpiarNombre((String) modeloTabla.getValueAt(filas[0], 0)) + "\"?"
+                : "¿Eliminar " + filas.length + " elementos seleccionados?";
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                mensaje + "\nEsta acción no se puede deshacer.",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        int eliminados = 0;
+        List<String> errores = new ArrayList<>();
+
+        for (int fila : filas) {
+            try {
+                String nombre = limpiarNombre((String) modeloTabla.getValueAt(fila, 0));
+                File f = new File(carpetaActual, nombre);
+
+                if (!f.exists()) throw new Exception("No existe: " + nombre);
+
+                if (f.isDirectory()) {
+                    eliminarCarpetaRecursivo(f);
+                } else {
+                    if (!f.delete()) throw new Exception("No se pudo eliminar: " + nombre);
+                }
+                eliminados++;
+
+            } catch (Exception ex) {
+                errores.add(ex.getMessage());
+            }
+        }
+
+        // Actualizar árbol y tabla
+        cargarContenido(carpetaActual);
+        if (nodoActual != null) arbolDirectorios.recargarNodo(nodoActual);
+
+        if (errores.isEmpty()) {
+            setEstado("  " + eliminados + " elemento(s) eliminados.");
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Algunos elementos no se pudieron eliminar:\n" + String.join("\n", errores),
+                    "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+
+    } catch (IllegalStateException e) {
+        mostrarAdvertencia(e.getMessage());
+    } catch (Exception e) {
+        mostrarError("Error al eliminar", e.getMessage());
+    }
+}
+
+    private void eliminarCarpetaRecursivo(File carpeta) throws Exception {
+        File[] contenido = carpeta.listFiles();
+        if (contenido != null) {
+            for (File f : contenido) {
+                if (f.isDirectory()) {
+                    eliminarCarpetaRecursivo(f);
+                } else {
+                    if (!f.delete()) throw new Exception("No se pudo eliminar: " + f.getName());
+                }
+            }
+        }
+        if (!carpeta.delete()) throw new Exception("No se pudo eliminar carpeta: " + carpeta.getName());
     }
 
     // Historial: atrás
@@ -785,18 +1014,10 @@ private File crearEstructuraRaiz() {
         // -- Subcarpeta Imagenes con archivos --
         File imagenes = new File(raiz, "Imagenes");
         imagenes.mkdir();
-        crearArchivoTexto(new File(imagenes, "foto1.jpg"),   "imagen");
-        crearArchivoTexto(new File(imagenes, "foto2.jpg"),   "imagen");
-        crearArchivoTexto(new File(imagenes, "banner.png"),  "imagen");
-        crearArchivoTexto(new File(imagenes, "logo.png"),    "imagen");
-        crearArchivoTexto(new File(imagenes, "icono.gif"),   "imagen");
 
         // -- Subcarpeta Musica con archivos --
         File musica = new File(raiz, "Musica");
         musica.mkdir();
-        crearArchivoTexto(new File(musica, "cancion1.mp3"), "audio");
-        crearArchivoTexto(new File(musica, "cancion2.mp3"), "audio");
-        crearArchivoTexto(new File(musica, "sonido.wav"),   "audio");
 
         // -- Carpeta Descargas con archivos mixtos (para probar Organizar) --
         File descargas = new File(raiz, "Descargas");
@@ -806,7 +1027,6 @@ private File crearEstructuraRaiz() {
         crearArchivoTexto(new File(descargas, "musica.mp3"),     "audio");
         crearArchivoTexto(new File(descargas, "manual.pdf"),     "documento");
         crearArchivoTexto(new File(descargas, "portada.png"),    "imagen");
-        crearArchivoTexto(new File(descargas, "cancion.wav"),    "audio");
 
         // -- Carpeta Trabajos con archivos --
         File trabajos = new File(raiz, "Trabajos");
