@@ -19,8 +19,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -29,7 +27,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 
-public class fileExplorer extends JPanel {
+public class FileExplorer extends JPanel {
 
     private static String userName = UserLogged.getInstance().getUserLogged().getName();
     private String raizUsuario = "";
@@ -72,7 +70,7 @@ public class fileExplorer extends JPanel {
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    public fileExplorer(genFondos panelFondo) {
+    public FileExplorer(genFondos panelFondo) {
         setLayout(new BorderLayout(5, 5));
         this.panelFondo = panelFondo;
         setBackground(COLOR_FONDO);
