@@ -4,17 +4,35 @@
  */
 package lab8_memoria;
 
+import javax.swing.*;
+
 /**
  *
  * @author nasry
  */
 public class Lab8_Memoria {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("JAVA CENTER");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1000, 650);
+            frame.setLocationRelativeTo(null);
+
+            genFondos escritorio = new genFondos();
+
+            fileExplorer explorador = new fileExplorer(escritorio);
+
+            JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                explorador,
+                escritorio
+            );
+            splitPane.setDividerLocation(750);
+            splitPane.setResizeWeight(0.75);
+
+            frame.add(splitPane);
+            frame.setVisible(true);
+        });
     }
-    
 }
