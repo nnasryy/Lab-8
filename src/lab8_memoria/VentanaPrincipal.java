@@ -84,7 +84,7 @@ public class VentanaPrincipal extends JFrame {
     //  CONFIGURAR VENTANA
     // ============================================================
     private void configurarVentana() {
-        setTitle("JAVA CENTER");
+        setTitle("Navegador y Organizador de Archivos");
         setSize(860, 590);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -115,9 +115,9 @@ public class VentanaPrincipal extends JFrame {
         // Título
         JPanel barraT = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 3));
         barraT.setBackground(COLOR_TITULO_FONDO);
-        JLabel icono = new JLabel("🗂");
+        JLabel icono = new JLabel(" ");
         icono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        JLabel txtTitulo = new JLabel("JAVA CENTER");
+        JLabel txtTitulo = new JLabel("Navegador y Organizador de Archivos");
         txtTitulo.setFont(new Font("Tahoma", Font.BOLD, 12));
         txtTitulo.setForeground(Color.WHITE);
         barraT.add(icono);
@@ -351,7 +351,7 @@ public class VentanaPrincipal extends JFrame {
         labelEstado.setForeground(new Color(80, 90, 120));
         pie.add(labelEstado, BorderLayout.WEST);
 
-        JLabel lblDerechos = new JLabel("Derechos Reservados UNITEC  ", SwingConstants.RIGHT);
+        JLabel lblDerechos = new JLabel("Angie - Nasry - Adan - Jeremy", SwingConstants.RIGHT);
         lblDerechos.setFont(new Font("Tahoma", Font.PLAIN, 11));
         lblDerechos.setForeground(new Color(80, 90, 120));
         pie.add(lblDerechos, BorderLayout.EAST);
@@ -618,18 +618,24 @@ public class VentanaPrincipal extends JFrame {
 
             boolean ok = gestor.renombrar(archivo, nuevo);
             if (ok) {
+                // Si la carpeta renombrada ES la carpeta actual, actualizar carpetaActual
                 if (carpetaActual.equals(archivo)) {
                     carpetaActual = new File(archivo.getParentFile(), nuevo);
                 }
 
-                cargarContenido(carpetaActual);
-
-                if (nodoActual != null) arbolDirectorios.recargarNodo(nodoActual);
-                if (fila < 0 && nodoActual != null) {
+                // Recargar el nodo padre en el árbol para que se vea el nuevo nombre
+                if (nodoActual != null) {
                     DefaultMutableTreeNode padre =
                             (DefaultMutableTreeNode) nodoActual.getParent();
-                    if (padre != null) arbolDirectorios.recargarNodo(padre);
+                    if (padre != null) {
+                        arbolDirectorios.recargarNodo(padre);
+                    } else {
+                        // Era el nodo raíz, recargar el propio nodo
+                        arbolDirectorios.recargarNodo(nodoActual);
+                    }
                 }
+
+                cargarContenido(carpetaActual);
                 setEstado("  Renombrado: \"" + nombreViejo + "\" → \"" + nuevo + "\"");
             } else {
                 throw new Exception("No se pudo renombrar. ¿Ya existe ese nombre?");
@@ -994,7 +1000,7 @@ public class VentanaPrincipal extends JFrame {
  * Solo se crea si no existe, para no borrar lo que el usuario ya haya creado.
  */
 private File crearEstructuraRaiz() {
-    File raiz = new File(System.getProperty("user.home"), "JavaCenter");
+    File raiz = new File(System.getProperty("user.home"), "PollitoRaiz");
 
     if (raiz.exists()) return raiz; // Ya existe, no tocar
 
